@@ -1,28 +1,48 @@
-'use strict';
-const modal = document.querySelector('.modal');
-const overlay = document.querySelector('.overlay');
-const btnsCloseModal = document.querySelector('.close-modal');
-const btnsOpenModal = document.querySelectorAll('.show-modal');
-
-const openModal = function () {
-  modal.classList.remove('hidden');
-  overlay.classList.remove('hidden');
-};
-const closeModal = function () {
-  modal.classList.add('hidden');
-  overlay.classList.add('hidden');
-};
-
-for (let i = 0; i < btnsOpenModal.length; i++)
-  btnsOpenModal[i].addEventListener('click', openModal);
-
-btnsCloseModal.addEventListener('click', closeModal);
-overlay.addEventListener('click', closeModal);
-
-document.addEventListener('keydown', function (e) {
-  // console.log(e.key);
-
-  if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-    closeModal();
+class Typerwriter {
+  constructor(el, options) {
+    this.el = el;
+    this.words = [...this.el.dataset.typewriter.split(',')];
+    this.speed = options?.speed || 100;
+    this.delay = options?.delay || 1500;
+    this.repeat = options?.repeat;
+    this.initTyping();
   }
+
+  wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  toggleTyping = () => this.el.classList.toggle('typing');
+
+  async typewrite(word) {
+    await this.wait(this.delay);
+    this.toggleTyping();
+    for (const letter of word.split('')) {
+      this.el.textContent += letter;
+      await this.wait(this.speed);
+    }
+    this.toggleTyping();
+    await this.wait(this.delay);
+    this.toggleTyping();
+    while (this.el.textContent.length !== 0) {
+      this.el.textContent = this.el.textContent.slice(0, -1);
+      await this.wait(this.speed);
+    }
+    this.toggleTyping();
+  }
+
+  async initTyping() {
+    for (const word of this.words) {
+      await this.typewrite(word);
+    }
+    if (this.repeat) {
+      await this.initTyping();
+    } else {
+      this.el.style.animation = 'none';
+    }
+  }
+}
+
+document.querySelectorAll('[data-typewriter]').forEach((el) => {
+  new Typerwriter(el, {
+    repeat: true,
+  });
 });
