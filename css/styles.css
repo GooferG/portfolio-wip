@@ -327,3 +327,7 @@ main {
     border-color: #ff8e3c;
   }
 }
+
+.container {
+  margin: 0 auto;
+}
